@@ -1,0 +1,333 @@
+<div style="margin-left: 15px; margin-right: 15px; margin-top: 5px">
+  <br />
+
+  <!-- --- Radio Buttons For Selecting Item Categories --- -->
+  <div>
+    <p-radioButton name="item_category" label="Clothes" value="clothes" [(ngModel)]="selected_item_type"
+      (onClick)="set_cols(); set_data(); set_item_header();"></p-radioButton>
+    &nbsp;
+    <p-radioButton name="item_category" label="Electronics" value="electronics" [(ngModel)]="selected_item_type"
+      (onClick)="set_cols(); set_data(); set_item_header();"></p-radioButton>
+    &nbsp;
+    <p-radioButton name="item_category" label="Automobile" value="automobiles" [(ngModel)]="selected_item_type"
+      (onClick)="set_cols(); set_data(); set_item_header();"></p-radioButton>
+  </div>
+
+  <br />
+
+  <!-- --- To Add New Item OR Edit Existing Item --- -->
+  <div>
+    <p-dialog [(visible)]="add_item || edit_item" modal="true" closeOnEscape="true" [style]="{width: '30em'}">
+      <p-header *ngIf="add_item">
+        Add New {{item_header}}
+      </p-header>
+      <p-header *ngIf="edit_item">
+        Edit {{item_header}}
+      </p-header>
+      <div>
+        <form #newItemForm="ngForm" *ngIf="selected_item_type=='clothes' || selected_item_type=='electronics'">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" #name="ngModel" name="name" id="name" [(ngModel)]="new_item.name" class="form-control"
+              required>
+            <div *ngIf="name.invalid && (name.dirty || name.touched)" class="alert alert-danger">
+              <div *ngIf="name.errors.required">
+                Name is required.
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" #quantity="ngModel" name="quantity" id="quantity" [(ngModel)]="new_item.quantity"
+              class="form-control" required>
+            <div *ngIf="quantity.invalid && (quantity.dirty || quantity.touched)" class="alert alert-danger">
+              <div *ngIf="quantity.errors.required">
+                Quantity is required.
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="pp">Purchase Price</label>
+            <input type="number" #pp="ngModel" name="pp" id="pp" [(ngModel)]="new_item.pp" class="form-control"
+              required>
+            <div *ngIf="pp.invalid && (pp.dirty || pp.touched)" class="alert alert-danger">
+              <div *ngIf="pp.errors.required">
+                Purchase Price is required.
+              </div>
+            </div>
+          </div>
+        </form>
+        <form #newBrandForm="ngForm" *ngIf="selected_item_type=='automobiles'">
+          <div class="form-group">
+            <label for="brand_name">Brand Name</label>
+            <input type="text" #brand_name="ngModel" name="brand_name" id="brand_name" [(ngModel)]="new_item.name"
+              class="form-control" required>
+            <div *ngIf="brand_name.invalid && (brand_name.dirty || brand_name.touched)" class="alert alert-danger">
+              <div *ngIf="brand_name.errors.required">
+                Brand Name is required.
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <p-footer>
+        <p-button *ngIf="add_item" label="Save {{item_header}}" (click)="saveItem()"
+          styleClass="ui-button-raised ui-button-success"></p-button>
+        <p-button *ngIf="edit_item" label="Update {{item_header}}" (click)="updateItem(new_item._id)"></p-button>
+        <p-button label="Cancel" (click)="add_item = false; edit_item=false;"></p-button>
+      </p-footer>
+    </p-dialog>
+
+    <button type="text" (click)="addItem()" pButton icon="pi pi-plus" label="Add {{item_header}}"
+      styleClass="ui-button-raised ui-button-success"></button>
+  </div>
+
+  <br />
+
+  <!-- --- Table for Clothes OR Electronics --- -->
+  <div *ngIf="selected_item_type == 'clothes' || selected_item_type == 'electronics'">
+    <p-table #dt1 [columns]="cols" [value]="items" [paginator]="items?.length > 0" [rows]="10"
+      [rowsPerPageOptions]="[5,10,20,30]">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col [style.width]="'9%'">          
+          <col *ngFor="let col of columns" [style.width]="col.width">
+          <col [style.width]="'15%'">
+        </colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th rowspan="2">
+              Sr.No.
+          </th>
+          <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+            {{col.header}}
+            <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+              ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+            </p-sortIcon>
+          </th>
+          <th rowspan="2">
+            Action
+          </th>
+        </tr>
+        <tr>
+          <th *ngFor="let col of columns" [ngSwitch]="col.field" class="ui-fluid">
+            <input pInputText type="text" (input)="dt1.filter($event.target.value, col.field, 'contains')"
+              [value]="dt1.filters[col.field]?.value" class="input-res">
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item let-columns="columns">
+        <tr>
+          <td>
+            {{items.indexOf(item)+1}}
+          </td>
+          <td *ngFor="let col of columns;" [ngSwitch]="true">
+            <div  *ngSwitchCase="col.field =='pp'">
+              {{item[col.field] | number : '1.2-2'}}
+            </div>
+            <div *ngSwitchDefault>
+              {{item[col.field]}}
+            </div>
+          </td>
+          <td>
+            <p-button label="Edit" icon="pi pi-pencil" (click)="editItem(item['_id'])" iconPos="left"
+              styleClass="ui-button-raised ui-button-warning"></p-button>
+            &nbsp;
+            <p-button label="Delete" (click)="deleteItem(item['_id'])" icon="pi pi-trash" iconPos="left"
+              styleClass="ui-button-raised ui-button-danger"></p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="summary">
+        There are {{items?.length}} {{selected_item_type}}.
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- --- Table for Automobiles --- -->
+  <div *ngIf="selected_item_type == 'automobiles'">
+    <p-table #dt [columns]="cols_brand" [value]="items" dataKey="name">
+      <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+          <col [style.width]="'3%'">
+          <col *ngFor="let col of columns" [style.width]="col.width">
+          <col [style.width]="'20%'">
+        </colgroup>
+      </ng-template>
+      <ng-template pTemplate="caption">
+        <div style="text-align: left">
+          <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+          <input type="text" pInputText size="50" placeholder=" Search Brand... "
+            (input)="dt.filterGlobal($event.target.value, 'contains')" style="width:auto">
+        </div>
+      </ng-template>
+      <ng-template *ngIf="items?.length > 0" pTemplate="header" let-columns>
+        <tr>
+          <th></th>
+          <th *ngFor="let col of columns">
+            {{col.header}}
+          </th>
+          <th>
+            Action
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-brand let-expanded="expanded" let-columns="columns">
+        <tr>
+          <td>
+            <a href="#" [pRowToggler]="brand">
+              <i [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+            </a>
+          </td>
+          <td *ngFor="let col of columns">
+            {{brand[col.field]}}
+          </td>
+          <td>
+            <p-button label="Edit" icon="pi pi-pencil" (click)="editItem(brand['_id'])" iconPos="left"
+              styleClass="ui-button-raised ui-button-warning"></p-button>
+            &nbsp;
+            <p-button label="Delete" (click)="deleteItem(brand['_id'])" icon="pi pi-trash" iconPos="left"
+              styleClass="ui-button-raised ui-button-danger"></p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="rowexpansion" let-brand let-columns="columns">
+        <tr>
+          <td [attr.colspan]="columns.length + 2" style="background-color: black">
+
+            <!-- --- To Add New Model OR Edit Existing Model--- -->
+            <div>
+              <p-dialog [(visible)]="add_submodel || edit_submodel" modal="true" closeOnEscape="true"
+                [style]="{width: '30em'}">
+                <p-header *ngIf="add_submodel">
+                  Add New Model
+                </p-header>
+                <p-header *ngIf="edit_submodel">
+                  Edit Model
+                </p-header>
+                <div>
+                  <form #newModelForm="ngForm">
+                    <div class="form-group">
+                      <label for="name">Name</label>
+                      <input type="text" #name="ngModel" name="name" id="name" [(ngModel)]="new_item.name"
+                        class="form-control" required>
+                      <div *ngIf="name.invalid && (name.dirty || name.touched)" class="alert alert-danger">
+                        <div *ngIf="name.errors.required">
+                          Name is required.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="quantity">Quantity</label>
+                      <input type="number" #quantity="ngModel" name="quantity" id="quantity"
+                        [(ngModel)]="new_item.quantity" class="form-control" required>
+                      <div *ngIf="quantity.invalid && (quantity.dirty || quantity.touched)" class="alert alert-danger">
+                        <div *ngIf="quantity.errors.required">
+                          Quantity is required.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="pp">Purchase Price</label>
+                      <input type="number" #pp="ngModel" name="pp" id="pp" [(ngModel)]="new_item.pp"
+                        class="form-control" required>
+                      <div *ngIf="pp.invalid && (pp.dirty || pp.touched)" class="alert alert-danger">
+                        <div *ngIf="pp.errors.required">
+                          Purchase Price is required.
+                        </div>
+                      </div>
+                    </div>
+
+                  </form>
+                </div>
+                <p-footer>
+                  <p-button *ngIf="add_submodel" label="Save Model" (click)="saveModel(brand['_id'])"
+                    styleClass="ui-button-raised ui-button-success"></p-button>
+                  <p-button *ngIf="edit_submodel" label="Update Model" (click)="updateModel(brand['_id'])">
+                  </p-button>
+                  <p-button label="Cancel" (click)="add_submodel = false; edit_submodel = false;"></p-button>
+                </p-footer>
+              </p-dialog>
+
+              <button type="text" (click)="addModel()" pButton icon="pi pi-plus" label="Add Model"
+                styleClass="ui-button-raised ui-button-success"></button>
+            </div>
+
+            <br />
+
+            <p-table #dt1 [columns]="cols" [value]="brand['submodels']" dataKey="name">
+              <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                  <col *ngFor="let col of columns" [style.width]="col.width">
+                  <col [style.width]="'16%'">
+                </colgroup>
+              </ng-template>
+              <ng-template *ngIf="brand['submodels']?.length" pTemplate="header" let-columns>
+                <tr>
+                  <th *ngFor="let col of columns">
+                    {{col.header}}
+                    <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+                      ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon>
+                  </th>
+                  <th rowspan="2">
+                    Action
+                  </th>
+                </tr>
+                <tr>
+                  <th *ngFor="let col of columns" [ngSwitch]="col.field" class="ui-fluid">
+                    <input pInputText type="text" (input)="dt1.filter($event.target.value, col.field, 'contains')"
+                      [value]="dt1.filters[col.field]?.value" class="input-res">
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-model let-columns="columns">
+                <tr>
+                  <td *ngFor="let col of columns" [ngSwitch]="true">
+                    <div  *ngSwitchCase="col.field =='pp'">
+                      {{model[col.field] | number : '1.2-2'}}
+                    </div>
+                    <div *ngSwitchDefault>
+                      {{model[col.field]}}
+                    </div>
+                  </td>
+                  <td>
+                    <p-button label="Edit" icon="pi pi-pencil" (click)="editModel(model)" iconPos="left"
+                      styleClass="ui-button-raised ui-button-warning"></p-button>
+                    &nbsp;
+                    <p-button label="Delete" icon="pi pi-trash" iconPos="left" (click)="deleteModel(brand['_id'], model['_id'])"
+                      styleClass="ui-button-raised ui-button-danger"></p-button>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="summary">
+                There are {{brand['submodels']?.length}} models for this brand.
+              </ng-template>
+            </p-table>
+    </td>
+    </tr>
+      </ng-template>
+      <ng-template pTemplate="summary">
+        There are {{items?.length}} brands.
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- --- Confirmation Dialog for Deletion --- -->
+<p-confirmDialog #cd header="Confirmation" icon="pi pi-exclamation-triangle">
+  <p-footer>
+    <button type="button" pButton icon="pi pi-times" label="No" (click)="cd.reject()"
+      styleClass="ui-button-raised ui-button-danger"></button>
+    <button type="button" pButton icon="pi pi-check" label="Yes" (click)="cd.accept()"
+      styleClass="ui-button-raised"></button>
+  </p-footer>
+</p-confirmDialog>
+
+<!-- --- Message for notification --- -->
+<p-toast></p-toast>

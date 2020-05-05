@@ -1,0 +1,206 @@
+<div *ngIf="bill_loaded" style="margin-left: 15px; margin-right: 15px; margin-top: 5px">
+  <h3 style="text-align: center">
+    TAX INVOICE
+  </h3>
+
+  <!-- -- Bill Header -- -->
+  <div class="row" style="border: solid; border-width: thin">
+    <div class="column ui-g-6" style="border-right : solid; border-width: thin;">
+      <table>
+        <thead>
+          <tr>
+            <td><b>Bill To</b></td>
+            <td> : </td>
+            <td>&nbsp;<b>{{receiver.name}}</b></td>
+          </tr>
+          <tr>
+            <td colspan="2"></td>
+          </tr>
+          <tr>
+            <td><b>Address</b></td>
+            <td> : </td>
+            <td>&nbsp;<b>{{receiver.address.streetline}}</b></td>
+          </tr>
+          <tr>
+            <td colspan="2"></td>
+            <td>{{receiver.address.area}}, {{receiver.address.city}}, {{receiver.address.state}}.</td>
+          </tr>
+        </thead>
+      </table>
+    </div>
+    <div class="column ui-g-6">
+      <table>
+        <thead>
+          <tr>
+            <td><b>Invoice No</b></td>
+            <td> : </td>
+            <td>&nbsp;{{bill.invoice_no_ele}}</td>
+          </tr>
+          <tr>
+            <td><b>Date</b></td>
+            <td> : </td>
+            <td>&nbsp;{{bill.invoice_date | date:'dd/MM/yyyy'}}</td>
+          </tr>
+          <tr>
+            <td><b>Contact No</b></td>
+            <td> : </td>
+            <td>&nbsp;{{receiver.contact}}</td>
+          </tr>
+          <tr>
+            <td><b>GSTIN</b></td>
+            <td> : </td>
+            <td>&nbsp;{{receiver.gst}}</td>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+
+  <!-- -- Items' Table -- -->
+  <div class="row ui-g-12" *ngIf="items.length > 0">
+    <table style="width: 100%;">
+      <colgroup>
+        <col [style.width]="'3%'">
+        <col *ngFor="let col of cols" [style.width]="col.width" [style.text-align]="col.align">
+      </colgroup>
+      <!-- -- header -- -->
+      <thead>
+        <tr>
+          <th style="text-align: center;">
+            No.
+          </th>
+          <th *ngFor="let col of cols" style="text-align: center">
+            {{col.header}}
+          </th>
+        </tr>
+      </thead>
+
+      <!-- -- body -- -->
+      <tbody>
+        <tr *ngFor="let item of items" style=" vertical-align: top;">
+          <td>
+            {{items.indexOf(item)+1}}
+          </td>
+          <td *ngFor="let col of cols;" [ngSwitch]="true">
+            <div *ngSwitchCase="col.field == 'product_name'">
+              Model No. : {{item['model_no']}}
+              <div *ngFor="let sr_no of item['sr_no']; let i = index">
+                Sr.No. {{i+1}}: {{sr_no}}<br/>
+              </div>
+              {{item.warranty_details}}
+            </div>
+            <div *ngSwitchCase="col.field == 'amount'"  style="text-align: end">
+              {{item[col.field] | number : '1.2-2'}}
+            </div>
+            <div *ngSwitchCase="col.field == 'rate'">
+              {{item[col.field] | number : '1.2-2'}}
+            </div>
+            <div *ngSwitchDefault>
+              {{item[col.field]}}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td *ngFor="let col of cols;">
+            <div *ngFor="let i of blanks"><br/></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="border-bottom: thin solid;"></td>
+          <td *ngFor="let col of cols;" style="border-bottom: thin solid;"></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td *ngFor="let col of cols;"></td>
+        </tr>
+      </tbody>
+
+      <!-- -- footer -- -->
+      <tfoot style="border : thin solid;">
+        <tr>
+          <td colspan="2"></td>
+          <td>{{total_qty}}</td>
+          <td style="text-align: end"><b>Sub Total</b></td>
+          <td style="text-align: end">{{bill.total_amount | number : '1.2-2'}}</td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <b *ngIf="bill.due_amount != 0">Due Amount : &nbsp; {{bill.due_amount | number : '1.2-2'}}</b>
+          </td>
+          <td style="text-align: end">
+            <b>CGST</b>....{{bill.cgst | number : '1.2-2'}}%
+          </td>
+          <td style="text-align: end">
+            {{bill.total_amount * bill.cgst / 100 | number : '1.2-2'}}
+          </td>
+        </tr>
+        <!-- -- Bank Details -- -->
+        <tr>
+          <td colspan="3" rowspan="3">
+            <div *ngIf="bank_details">
+              Bank Name : {{bank_details.value.name}}
+              <br />
+              A/C No. : {{bank_details.value.ac_no}}
+              <br />
+              IFSC Code : {{bank_details.value.ifsc}}
+            </div>
+          </td>
+          <td style="text-align: end">
+            <b>SGST</b>....{{bill.sgst | number : '1.2-2'}}%
+          </td>
+          <td style="text-align: end">
+            {{bill.total_amount * bill.sgst / 100 | number : '1.2-2'}}
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: end">
+            <b>Deposite</b>
+          </td>
+          <td style="text-align: end">
+            {{bill.deposite[0].amount | number : '1.2-2'}}
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align: end">
+            <b>Bill Amount</b>
+          </td>
+          <td style="border: solid; text-align: end;">
+            <b>{{bill.bill_amount | number : '1.2-2'}}</b>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="5">
+            <b>In Words : </b>{{bill.in_words}} RUPEES ONLY
+          </td>
+        </tr>
+      </tfoot>
+
+    </table>
+  </div>
+
+  <!-- -- bill footer -- -->
+  <div class="row ui-g-12">
+    <!-- -- T&C -- -->
+    <div class="column ui-g-8">
+      <b>Terms And Conditions : </b>
+      <br /><br />
+      1. Goods once sold will not be taken back or exchanged.
+      <br />
+      2. Warranty product-wise at Authorized Center.
+      <br />
+      3. If cheque is dishonoured Rs.250 per cheque will be charged.
+      <br />
+      4. No Warranty for burnt or physically damaged goods.
+      <br />
+      5. Subject to Surat Jusrisdiction only. E. & O.E.
+    </div>
+    <!-- -- Sign -- -->
+    <div class="column ui-g-4" aria-rowspan="2" style="text-align: end">
+      <p style="font-size: large">For Dev Enterprise</p>
+      <br /><br /><br />
+      ------------------------<br />
+      Authorised Signatory
+    </div>
+  </div>
+</div>

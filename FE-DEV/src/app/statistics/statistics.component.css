@@ -1,0 +1,11 @@
+.card {
+    border: none;
+    height: fit-content;
+    outline: none;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 20px;
+    font-family: Tahoma, sans-serif;
+}

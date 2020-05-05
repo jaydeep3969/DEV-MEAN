@@ -1,0 +1,17 @@
+.input-res
+{
+     width: 100%;
+     max-width: 500px;
+     box-sizing: border-box;
+     border: groove;
+     border-radius: 3px;
+     height: 100%;
+}
+
+.ng-valid[required], .ng-valid.required  {
+    border-left: 5px solid #42A948; /* green */
+  }
+  
+.ng-invalid:not(form)  {
+border-left: 5px solid #a94442; /* red */
+}

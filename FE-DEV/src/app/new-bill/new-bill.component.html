@@ -1,0 +1,927 @@
+<div style="margin-left: 15px; margin-right: 15px; margin-top: 5px">
+  <br />
+
+  <!-- --- Radio Buttons For Selecting Bill Categories --- -->
+  <div>
+    <p-radioButton name="bill_category" label="Clothes" value="bill_cloth" [(ngModel)]="selected_bill_type"
+      (onClick)="set_config();"></p-radioButton>
+    &nbsp;
+    <p-radioButton name="bill_category" label="Electronics" value="bill_electronic" [(ngModel)]="selected_bill_type"
+      (onClick)="set_config();"></p-radioButton>
+    &nbsp;
+    <p-radioButton name="bill_category" label="Automobile" value="bill_automobile" [(ngModel)]="selected_bill_type"
+      (onClick)="set_config();"></p-radioButton>
+  </div>
+
+  <!-- --- bill form for clothes --- -->
+  <div *ngIf="selected_bill_type=='bill_cloth'">
+    <form #newClothBillForm="ngForm">
+      <p-steps [model]="step_items" [(activeIndex)]="activeIndex" styleClass="steps-custom" [readonly]="false">
+      </p-steps>
+      <!-- -- Receiver -- -->
+      <div *ngIf="activeIndex == 0">
+        <p-card class="ui-g-5" header="Details Of Receiver :">
+          <br />
+          <div class="form-group">
+            <label for="rec_name">New Customer : </label>
+            &nbsp;
+            <p-radioButton name="customer_existence" label="Yes" value="yes" [(ngModel)]="selected_new_customer" (onClick)="setBillFields();"></p-radioButton>
+            &nbsp;
+            <p-radioButton name="customer_existence" label="No" value="no" [(ngModel)]="selected_new_customer"></p-radioButton>
+          </div>
+          <div class="form-group" *ngIf="selected_new_customer == 'no'">
+            <label for="rec_name">Name</label><br />
+            <p-autoComplete [(ngModel)]="receiver" name="rec_name" id="rec_name" [suggestions]="filtered_customers"
+              field="name" (completeMethod)="searchCustomers($event)" [minLength]="1" [dropdown]="true" [size]="62">
+            </p-autoComplete>
+          </div>
+          <div class="form-group" *ngIf="selected_new_customer == 'yes'">
+            <label for="rec_name">Name</label>
+            <input type="text" [(ngModel)]="receiver.name" name="rec_name" id="rec_name"
+              class="form-control" pInputText required>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                  <div *ngIf="rec_contact.errors.required">
+                    Contact is required.
+                  </div>
+                </div> -->
+          </div>
+          <div class="form-group">
+            <label for="rec_contact">Contact</label>
+            <input type="number" [(ngModel)]="receiver.contact" name="rec_contact" id="rec_contact" [maxlength]="10"
+              class="form-control" pInputText>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                  <div *ngIf="rec_contact.errors.required">
+                    Contact is required.
+                  </div>
+                </div> -->
+          </div>
+          <div class="form-group">
+            <label for="rec_gst">GST</label>
+            <input type="text" [(ngModel)]="receiver.gst" name="rec_gst" id="rec_gst" class="form-control" pInputText>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                            <div *ngIf="rec_contact.errors.required">
+                              Contact is required.
+                            </div>
+                          </div> -->
+          </div>
+        </p-card>
+        <p-card *ngIf=" (selected_new_customer == 'no' &&  receiver.address) || selected_new_customer == 'yes'" class="ui-g-5" header="Billed To :">
+          <br />
+          <div class="form-group">
+            <label for="billed_to_streetline">Streetline</label>
+            <input type="text" [(ngModel)]="receiver.address.streetline" name="billed_to_streetline"
+              id="billed_to_streetline" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="billed_to_area">Area</label>
+            <input type="text" [(ngModel)]="receiver.address.area" name="billed_to_area" id="billed_to_area"
+              class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="billed_to_city">City</label>
+            <input type="text" [(ngModel)]="receiver.address.city" name="billed_to_city" id="billed_to_city"
+              class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="billed_to_state">State</label>
+            <input type="text" [(ngModel)]="receiver.address.state" name="billed_to_state" id="billed_to_state"
+              class="form-control">
+          </div>
+        </p-card>
+        <div class="ui-g-2" style="align-content: center">
+          <br />
+          <button type="text" (click)="nextStep()" pButton icon="pi pi-arrow-right" iconPos="right" label="Next"
+            styleClass="ui-button-raised ui-button-primary"></button>
+          <!-- <br/>
+            <br/>
+            <button type="text" (click)="backStep()" pButton icon="pi pi-arrow-left" iconPos="left" label="Back"
+            styleClass="ui-button-raised ui-button-primary"></button> -->
+        </div>
+      </div>
+      <!-- -- Consignee -- -->
+      <div *ngIf="activeIndex == 1">
+        <p-card class="ui-g-5" header="Details Of Consignee :">
+          <br />
+          <div class="form-group">
+            <label for="consignee_nm">Name</label>
+            <input type="text" [(ngModel)]="new_bill.consignee_name" name="consignee_nm" id="consignee_nm"
+              class="form-control">
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                  <div *ngIf="rec_contact.errors.required">
+                    Contact is required.
+                  </div>
+                </div> -->
+          </div>
+          <div class="form-group">
+            <label for="consignee_contact">Contact</label>
+            <input type="number" [(ngModel)]="new_bill.consignee_contact" name="consignee_contact"
+              id="consignee_contact" [maxlength]="10" class="form-control" pInputText>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                  <div *ngIf="rec_contact.errors.required">
+                    Contact is required.
+                  </div>
+                </div> -->
+          </div>
+
+        </p-card>
+        <p-card class="ui-g-5" header="Shipped To :">
+          <div class="form-group">
+            <label for="billed_to_streetline">Streetline</label>
+            <input type="text" [(ngModel)]="new_bill.shipped_to.streetline" name="billed_to_streetline"
+              id="billed_to_streetline" class="form-control">
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                                <div *ngIf="rec_contact.errors.required">
+                                  Contact is required.
+                                </div>
+                              </div> -->
+          </div>
+          <div class="form-group">
+            <label for="shipped_to_area">Area</label>
+            <input type="text" [(ngModel)]="new_bill.shipped_to.area" name="shipped_to_area" id="shipped_to_area"
+              class="form-control">
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                                <div *ngIf="rec_contact.errors.required">
+                                  Contact is required.
+                                </div>
+                              </div> -->
+          </div>
+          <div class="form-group">
+            <label for="shipped_to_city">City</label>
+            <input type="text" [(ngModel)]="new_bill.shipped_to.city" name="shipped_to_city" id="shipped_to_city"
+              class="form-control">
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                                <div *ngIf="rec_contact.errors.required">
+                                  Contact is required.
+                                </div>
+                              </div> -->
+          </div>
+          <div class="form-group">
+            <label for="shipped_to_state">State</label>
+            <input type="text" [(ngModel)]="new_bill.shipped_to.state" name="shipped_to_state" id="shipped_to_state"
+              class="form-control">
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                                <div *ngIf="rec_contact.errors.required">
+                                  Contact is required.
+                                </div>
+                              </div> -->
+          </div>
+        </p-card>
+        <div class="ui-g-2" style="align-content: center">
+          <br />
+          <button type="text" (click)="nextStep()" pButton icon="pi pi-arrow-right" iconPos="right" label="Next"
+            styleClass="ui-button-raised ui-button-primary"></button>
+          <br />
+          <br />
+          <button type="text" (click)="backStep()" pButton icon="pi pi-arrow-left" iconPos="left" label="Back"
+            styleClass="ui-button-raised ui-button-primary"></button>
+        </div>
+      </div>
+      <!-- -- Invoice Details -- -->
+      <div *ngIf="activeIndex == 2">
+        <p-card class="ui-g-5" header="Invoice Details :">
+          <br />
+          <div class="form-group">
+            <label for="invoice_date">Invoice Date</label>
+            <br />
+            <p-calendar name="invoice_date" id="invoice_date" dateFormat="dd/mm/yy" [(ngModel)]="new_bill.invoice_date"></p-calendar>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                    <div *ngIf="rec_contact.errors.required">
+                      Contact is required.
+                    </div>
+                  </div> -->
+          </div>
+          <div class="form-group">
+            <label for="challan_no">Challan No</label>
+            <input type="number" [(ngModel)]="new_bill.challan_no" name="challan_no" id="challan_no"
+              class="form-control" pInputText>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                    <div *ngIf="rec_contact.errors.required">
+                      Contact is required.
+                    </div>
+                  </div> -->
+          </div>
+          <div class="form-group">
+            <label for="supply_date">Supply Date</label>
+            <br />
+            <p-calendar name="supply_date" id="supply_date" dateFormat="dd/mm/yy" [(ngModel)]="new_bill.supply_date"></p-calendar>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                    <div *ngIf="rec_contact.errors.required">
+                      Contact is required.
+                    </div>
+                  </div> -->
+          </div>
+
+        </p-card>
+        <div class="ui-g-5"></div>
+        <div class="ui-g-2" style="align-content: center">
+          <br />
+          <button type="text" (click)="nextStep()" pButton icon="pi pi-arrow-right" iconPos="right" label="Next"
+            styleClass="ui-button-raised ui-button-primary"></button>
+          <br />
+          <br />
+          <button type="text" (click)="backStep()" pButton icon="pi pi-arrow-left" iconPos="left" label="Back"
+            styleClass="ui-button-raised ui-button-primary"></button>
+        </div>
+      </div>
+      <!-- -- Items In Bill -- -->
+      <div *ngIf="activeIndex == 3">
+        <div class="ui-g-3">
+          <h3>Add Items to Bill</h3>
+        </div>
+        <div class="ui-g-6" style="text-align: center">
+          <button type="text" [disabled]="items?.length == 8" (click)="addItem()" pButton icon="pi pi-plus" label="Add Item"
+            styleClass="ui-button-raised ui-button-success"></button>
+          &nbsp;
+          Payment Due Date : &nbsp;
+          <p-calendar name="payment_due_date" id="payment_due_date" [(ngModel)]="new_bill.due_date" dateFormat="dd.mm.yy"></p-calendar>
+          &nbsp;
+          <p-button (onClick)="view_gst = true;"  label="GST" styleClass="ui-button-raised"></p-button>
+        </div>
+        <div class="ui-g-3" style="text-align: end">
+          Bank Details : &nbsp;
+          <p-inputSwitch [(ngModel)]="new_bill.bank_detail" name="bank_details"></p-inputSwitch>
+          &nbsp;
+          <button type="text" *ngIf="items.length > 0" [(disabled)]="bill_saved" (click)="saveBill()" pButton icon="pi pi-check" label="Save Bill"
+            styleClass="ui-button-raised ui-button-success"></button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- --- bill form for electronics --- -->
+  <div *ngIf="selected_bill_type=='bill_electronic'">
+    <form #newElectronicBillForm="ngForm">
+      <p-steps [model]="step_items" [(activeIndex)]="activeIndex" styleClass="steps-custom" [readonly]="false">
+      </p-steps>
+      <!-- -- Bill To -- -->
+      <div *ngIf="activeIndex == 0">
+        <p-card class="ui-g-5" header="Details Of Receiver :">
+          <br />
+          <div class="form-group">
+            <label for="rec_name">New Customer : </label>
+            &nbsp;
+            <p-radioButton name="customer_existence" label="Yes" value="yes" [(ngModel)]="selected_new_customer"
+              (onClick)="setBillFields();"></p-radioButton>
+            &nbsp;
+            <p-radioButton name="customer_existence" label="No" value="no" [(ngModel)]="selected_new_customer">
+            </p-radioButton>
+          </div>
+          <div class="form-group" *ngIf="selected_new_customer == 'no'">
+            <label for="rec_name">Name</label><br />
+            <p-autoComplete [(ngModel)]="receiver" name="rec_name" id="rec_name" [suggestions]="filtered_customers"
+              field="name" (completeMethod)="searchCustomers($event)" [minLength]="1" [dropdown]="true" [size]="62">
+            </p-autoComplete>
+          </div>
+          <div class="form-group" *ngIf="selected_new_customer == 'yes'">
+            <label for="rec_name">Name</label>
+            <input type="text" [(ngModel)]="receiver.name" name="rec_name" id="rec_name" class="form-control" pInputText
+              required>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                        <div *ngIf="rec_contact.errors.required">
+                          Contact is required.
+                        </div>
+                      </div> -->
+          </div>
+          <div class="form-group">
+            <label for="rec_contact">Contact</label>
+            <input type="number" [(ngModel)]="receiver.contact" name="rec_contact" id="rec_contact" [maxlength]="10"
+              class="form-control" pInputText>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                        <div *ngIf="rec_contact.errors.required">
+                          Contact is required.
+                        </div>
+                      </div> -->
+          </div>
+          <div class="form-group">
+            <label for="rec_gst">GST</label>
+            <input type="text" [(ngModel)]="receiver.gst" name="rec_gst" id="rec_gst" class="form-control" pInputText>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                                  <div *ngIf="rec_contact.errors.required">
+                                    Contact is required.
+                                  </div>
+                                </div> -->
+          </div>
+        </p-card>
+        <p-card *ngIf=" (selected_new_customer == 'no' &&  receiver.address) || selected_new_customer == 'yes'"
+          class="ui-g-5" header="Billed To :">
+          <br />
+          <div class="form-group">
+            <label for="billed_to_streetline">Streetline</label>
+            <input type="text" [(ngModel)]="receiver.address.streetline" name="billed_to_streetline"
+              id="billed_to_streetline" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="billed_to_area">Area</label>
+            <input type="text" [(ngModel)]="receiver.address.area" name="billed_to_area" id="billed_to_area"
+              class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="billed_to_city">City</label>
+            <input type="text" [(ngModel)]="receiver.address.city" name="billed_to_city" id="billed_to_city"
+              class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="billed_to_state">State</label>
+            <input type="text" [(ngModel)]="receiver.address.state" name="billed_to_state" id="billed_to_state"
+              class="form-control">
+          </div>
+        </p-card>
+        <div class="ui-g-2" style="align-content: center">
+          <br />
+          <button type="text" (click)="nextStep()" pButton icon="pi pi-arrow-right" iconPos="right" label="Next"
+            styleClass="ui-button-raised ui-button-primary"></button>
+          <!-- <br/>
+                  <br/>
+                  <button type="text" (click)="backStep()" pButton icon="pi pi-arrow-left" iconPos="left" label="Back"
+                  styleClass="ui-button-raised ui-button-primary"></button> -->
+        </div>
+      </div>
+      <!-- -- Items In Bill -- -->
+      <div *ngIf="activeIndex == 1">
+          <div class="ui-g-3">
+              <h3>Add Items to Bill</h3>
+          </div>
+          <div class="ui-g-7" style="text-align: center">
+            <button type="text" [disabled]="item_limit == 27" (click)="addItem()" pButton icon="pi pi-plus" label="Add Item"
+              styleClass="ui-button-raised ui-button-success"></button>
+            &nbsp;
+            Invoice Date : &nbsp;
+            <p-calendar name="payment_due_date" id="payment_due_date" [(ngModel)]="new_bill.invoice_date" dateFormat="dd.mm.yy"></p-calendar>
+            &nbsp;
+            <button type="text" *ngIf="items.length > 0" (click)="addDeposite()" pButton icon="pi pi-dollar" label="Deposite"
+              styleClass="ui-button-raised ui-button-success"></button>
+            &nbsp;
+            <p-button (onClick)="view_gst = true;"  label="GST" styleClass="ui-button-raised"></p-button>
+          </div>
+          <div class="ui-g-2" style="text-align: end">
+            Bank Details : 
+            <p-inputSwitch [(ngModel)]="new_bill.bank_detail" name="bank_details"></p-inputSwitch>
+            &nbsp;
+            <button type="text" *ngIf="items.length > 0 && new_bill.deposite.length > 0" [(disabled)]="bill_saved" (click)="saveBill()" pButton icon="pi pi-check" label="Save Bill"
+              styleClass="ui-button-raised ui-button-success"></button>
+          </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- --- bill form for automobile --- -->
+  <div *ngIf="selected_bill_type=='bill_automobile'">
+    <form #newAutomobileBillForm="ngForm">
+      <p-steps [model]="step_items" [(activeIndex)]="activeIndex" styleClass="steps-custom" [readonly]="false">
+      </p-steps>
+      <!-- -- Bill To -- -->
+      <div *ngIf="activeIndex == 0">
+        <p-card class="ui-g-5" header="Details Of Receiver :">
+          <br />
+          <div class="form-group">
+            <label for="rec_name">New Customer : </label>
+            &nbsp;
+            <p-radioButton name="customer_existence" label="Yes" value="yes" [(ngModel)]="selected_new_customer"
+              (onClick)="setBillFields();"></p-radioButton>
+            &nbsp;
+            <p-radioButton name="customer_existence" label="No" value="no" [(ngModel)]="selected_new_customer">
+            </p-radioButton>
+          </div>
+          <div class="form-group" *ngIf="selected_new_customer == 'no'">
+            <label for="rec_name">Name</label><br />
+            <p-autoComplete [(ngModel)]="receiver" name="rec_name" id="rec_name" [suggestions]="filtered_customers"
+              field="name" (completeMethod)="searchCustomers($event)" [minLength]="1" [dropdown]="true" [size]="62">
+            </p-autoComplete>
+          </div>
+          <div class="form-group" *ngIf="selected_new_customer == 'yes'">
+            <label for="rec_name">Name</label>
+            <input type="text" [(ngModel)]="receiver.name" name="rec_name" id="rec_name" class="form-control" pInputText
+              required>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                        <div *ngIf="rec_contact.errors.required">
+                          Contact is required.
+                        </div>
+                      </div> -->
+          </div>
+          <div class="form-group">
+            <label for="rec_contact">Contact</label>
+            <input type="number" [(ngModel)]="receiver.contact" name="rec_contact" id="rec_contact" [maxlength]="10"
+              class="form-control" pInputText>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                        <div *ngIf="rec_contact.errors.required">
+                          Contact is required.
+                        </div>
+                      </div> -->
+          </div>
+          <div class="form-group">
+            <label for="rec_gst">GST</label>
+            <input type="text" [(ngModel)]="receiver.gst" name="rec_gst" id="rec_gst" class="form-control" pInputText>
+            <!-- <div *ngIf="rec_contact.invalid && (rec_contact.dirty || rec_contact.touched)" class="alert alert-danger">
+                                  <div *ngIf="rec_contact.errors.required">
+                                    Contact is required.
+                                  </div>
+                                </div> -->
+          </div>
+        </p-card>
+        <p-card *ngIf=" (selected_new_customer == 'no' &&  receiver.address) || selected_new_customer == 'yes'"
+          class="ui-g-5" header="Billed To :">
+          <br />
+          <div class="form-group">
+            <label for="billed_to_streetline">Streetline</label>
+            <input type="text" [(ngModel)]="receiver.address.streetline" name="billed_to_streetline"
+              id="billed_to_streetline" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="billed_to_area">Area</label>
+            <input type="text" [(ngModel)]="receiver.address.area" name="billed_to_area" id="billed_to_area"
+              class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="billed_to_city">City</label>
+            <input type="text" [(ngModel)]="receiver.address.city" name="billed_to_city" id="billed_to_city"
+              class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="billed_to_state">State</label>
+            <input type="text" [(ngModel)]="receiver.address.state" name="billed_to_state" id="billed_to_state"
+              class="form-control">
+          </div>
+        </p-card>
+        <div class="ui-g-2" style="align-content: center">
+          <br />
+          <button type="text" (click)="nextStep()" pButton icon="pi pi-arrow-right" iconPos="right" label="Next"
+            styleClass="ui-button-raised ui-button-primary"></button>
+          <!-- <br/>
+                  <br/>
+                  <button type="text" (click)="backStep()" pButton icon="pi pi-arrow-left" iconPos="left" label="Back"
+                  styleClass="ui-button-raised ui-button-primary"></button> -->
+        </div>
+      </div>
+      <!-- -- Items In Bill -- -->
+      <div *ngIf="activeIndex == 1">
+          <div class="ui-g-3">
+              <h3>Add Items to Bill</h3>
+          </div>
+          <div class="ui-g-7" style="text-align: center">
+            <button type="text" (click)="addItem()" pButton icon="pi pi-plus" label="Add Item"
+              styleClass="ui-button-raised ui-button-success"></button>
+            &nbsp;
+            Invoice Date : &nbsp;
+            <p-calendar name="payment_invoice_date" id="payment_invoice_date" [(ngModel)]="new_bill.invoice_date" dateFormat="dd.mm.yy"></p-calendar>
+            &nbsp;
+            <p-button (onClick)="view_gst = true;"  label="GST" styleClass="ui-button-raised"></p-button>
+          </div>
+          <div class="ui-g-2" style="text-align: end">
+            <!-- Bank Details : 
+            <p-inputSwitch [(ngModel)]="new_bill.bank_detail" name="bank_details"></p-inputSwitch>
+            &nbsp; -->
+            <button type="text" *ngIf="items.length > 0" [(disabled)]="bill_saved" (click)="saveBill()" pButton icon="pi pi-check" label="Save Bill"
+              styleClass="ui-button-raised ui-button-success"></button>
+          </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- -- Table Of Items in Bill -- -->
+  <div *ngIf="items?.length > 0 && ((activeIndex == 3 && selected_bill_type == 'bill_cloth') || (activeIndex == 1 && (selected_bill_type == 'bill_electronic' || selected_bill_type == 'bill_automobile')))" class="ui-g-12">
+    <p-table [columns]="cols" [value]="items" dataKey="rate">
+      <ng-template  pTemplate="colgroup" let-columns>
+        <colgroup *ngIf="selected_bill_type == 'bill_cloth'">
+          <col [style.width]="'3%'">          
+          <col *ngFor="let col of columns" [style.width]="col.width">
+          <col [style.width]="'11%'">
+        </colgroup>
+        <colgroup *ngIf="selected_bill_type == 'bill_electronic' || selected_bill_type == 'bill_automobile'">
+          <col [style.width]="'3%'">          
+          <col [style.width]="'3%'">          
+          <col *ngFor="let col of columns" [style.width]="col.width" >
+          <col [style.width]="'11%'">
+        </colgroup>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngIf="selected_bill_type == 'bill_electronic' || selected_bill_type == 'bill_automobile'"></th>
+          <th>
+            No.
+          </th>
+          <th *ngFor="let col of columns">
+            {{col.header}}
+          </th>
+          <th>
+            Action
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-expanded="expanded" let-item let-columns="columns">
+        <tr>
+          <td *ngIf="selected_bill_type == 'bill_electronic' || selected_bill_type == 'bill_automobile'">
+            <a href="#" [pRowToggler]="item">
+              <i [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+            </a>
+          </td>
+          <td>
+            {{items.indexOf(item)+1}}
+          </td>
+          <td *ngFor="let col of columns;" [ngSwitch]="true">
+            <div *ngSwitchCase="selected_bill_type=='bill_automobile' && col.field == 'product_name'">
+              {{item['brand_name']}} {{item['model_name']}}
+            </div>
+            <div *ngSwitchDefault>
+              {{item[col.field]}}
+            </div>
+          </td>
+          <td>
+            <!-- edit -->
+            <p-button icon="pi pi-pencil" (click)="editItem(items.indexOf(item))" iconPos="left"
+              styleClass="ui-button-raised ui-button-warning"></p-button>
+            &nbsp;
+            <!-- delete -->
+            <p-button (click)="deleteItem(items.indexOf(item))" icon="pi pi-trash" iconPos="left"
+              styleClass="ui-button-raised ui-button-danger"></p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template *ngIf="selected_bill_type == 'bill_cloth'" pTemplate="footer" let-columns>
+        <tr>
+          <td colspan="3">
+            <!-- blank -->
+          </td>
+          <td>
+            {{total_pcs}}
+          </td>
+          <td>
+            <!-- blank -->
+          </td>
+          <td>
+            {{total_meters}}
+          </td>
+          <td colspan="2">
+            <!-- blank -->
+          </td>
+          <td colspan="2">
+            {{new_bill.total_amount}}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="6" rowspan="2">
+            Payment Due Date : {{new_bill.due_date | date:'dd/MM/yyyy'}}
+          </td>
+          <td>
+            CGST
+          </td>
+          <td>
+            {{new_bill.cgst | number : '1.2-2'}}%
+          </td>
+          <td colspan="2">
+            {{new_bill.total_amount * new_bill.cgst / 100 | number : '1.2-2'}}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            SGST
+          </td>
+          <td>
+              {{new_bill.sgst | number : '1.2-2'}}%
+            </td>
+            <td colspan="2">
+              {{new_bill.total_amount * new_bill.sgst / 100 | number : '1.2-2'}}
+            </td>
+        </tr>
+        <tr>
+          <td colspan="8" style="text-align: end">
+            Bill Amount
+          </td>
+          <td colspan="2" style="border: solid">
+            {{new_bill.bill_amount | number : '1.2-2'}}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template *ngIf="selected_bill_type == 'bill_electronic' || selected_bill_type == 'bill_automobile'" pTemplate="footer" let-columns>
+        <tr>
+          <td colspan="3">
+            <!-- Blank -->
+          </td>
+          <td>
+            {{total_qty}}
+          </td>
+          <td>
+            <!-- Blank -->
+          </td>
+          <td colspan="2">
+            {{new_bill.total_amount | number : '1.2-2'}}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <!-- Blank -->
+          </td>
+          <td>
+            CGST
+          </td>
+          <td>
+            {{new_bill.cgst | number : '1.2-2'}}%
+          </td>
+          <td colspan="2">
+              {{this.new_bill.total_amount * this.new_bill.cgst / 100 | number : '1.2-2'}}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <!-- Blank -->
+          </td>
+          <td>
+            SGST
+          </td>
+          <td>
+            {{new_bill.sgst | number : '1.2-2'}}%
+          </td>
+          <td colspan="2">
+            {{this.new_bill.total_amount * this.new_bill.sgst / 100 | number : '1.2-2'}}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="5" style="text-align: end">
+            Bill Amount
+          </td>
+          <td colspan="2" style="border: solid">
+            {{new_bill.bill_amount | number : '1.2-2'}}
+          </td>
+        </tr>
+        <tr *ngIf="selected_bill_type == 'bill_electronic' && new_bill.deposite.length != 0">
+          <td colspan="5" style="text-align: end">
+            Deposite
+          </td>
+          <td colspan="2" style="border: solid">
+            {{new_bill.deposite[0].amount | number : '1.2-2'}}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="rowexpansion" let-item let-columns="columns">
+          <tr>
+            <td [attr.colspan]="columns.length + 3" style="background-color: black">
+              <!-- -- Dialog to add or edit Sr. No. -- -->
+              <div>
+                  <p-dialog [(visible)]="add_SrModelNo || edit_SrModelNo" modal="true" closeOnEscape="true" [style]="{width: '30em'}">
+                    <p-header *ngIf="add_SrModelNo">
+                      Add Sr.No.
+                    </p-header>
+                    <p-header *ngIf="edit_SrModelNo">
+                      Edit Sr.No.
+                    </p-header>
+                    <div>
+                        <form #newSrModelNoForm="ngForm">
+                          <div class="form-group">
+                            <label for="sr_no_ele">Serial Number</label>
+                            <input type="text"  name="sr_no_ele" id="sr_no_ele" [(ngModel)]="sr_no" class="form-control">
+                          </div>
+                        </form>    
+                    </div>
+                    <p-footer>
+                      <p-button *ngIf="add_SrModelNo" label="Save" (click)="saveSrModelNo(items.indexOf(item))" styleClass="ui-button-raised ui-button-success">
+                      </p-button>
+                      <p-button *ngIf="edit_SrModelNo" label="Update" (click)="updateSrModelNo(items.indexOf(item), index)" styleClass="ui-button-raised ui-button-success"></p-button>
+                      <p-button label="Cancel" (click)="add_SrModelNo = false; edit_SrModelNo=false;"></p-button>
+                    </p-footer>
+                  </p-dialog>
+
+                <button type="text" [disabled]="item_limit == 27" (click)="addSrModelNo(items.indexOf(item))" pButton icon="pi pi-plus" label="Add"
+                styleClass="ui-button-raised ui-button-success"></button>
+
+                &nbsp; &nbsp;
+                <b style="color : white">Warranty : {{item.warranty_details}}</b>
+
+                &nbsp; &nbsp;
+                <b style="color : white">Model No : {{item.model_no}}</b>
+              </div>
+
+              <br />
+              
+              <p-table [value]="item['sr_no']">
+                <ng-template pTemplate="colgroup">
+                  <colgroup>
+                    <col [style.width]="'50%'">
+                    <col [style.width]="'10%'">
+                  </colgroup>
+                </ng-template>
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Serial Number</th>
+                    <th>Action</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-number>
+                  <tr>
+                    <td>
+                      {{number}}
+                    </td>
+                    <td>
+                      <!-- edit -->
+                      <p-button icon="pi pi-pencil" (click)="index = item['sr_no'].indexOf(number); editSrModelNo(items.indexOf(item), index);" iconPos="left"
+                        styleClass="ui-button-raised ui-button-warning"></p-button>
+                      &nbsp;
+                      <!-- delete -->
+                      <p-button (click)="index = item['sr_no'].indexOf(number); deleteSrModelNo(items.indexOf(item), index)" icon="pi pi-trash" iconPos="left"
+                        styleClass="ui-button-raised ui-button-danger"></p-button>
+                    </td>
+                  </tr>
+                </ng-template>
+                <!-- <ng-template pTemplate="summary" *ngIf="item['numbers']?.length == 0">
+                  Zero Quantity
+                </ng-template> -->
+              </p-table>
+            </td>
+          </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+
+
+<!-- -- Dialog for Adding New Item to Bill or Updation of Existing Item -- -->
+<p-dialog [(visible)]="add_item || edit_item" modal="true" closeOnEscape="true" [style]="{width: '30em'}">
+  <p-header *ngIf="add_item">
+    Add New Item To Bill
+  </p-header>
+  <p-header *ngIf="edit_item">
+    Edit Item
+  </p-header>
+  <div>
+    <form #newClothItemForm="ngForm" *ngIf="selected_bill_type=='bill_cloth'">
+      <div class="form-group">
+        <label for="item_name">Item Name</label><br />
+        <p-autoComplete [(ngModel)]="selected_item" name="item_name" id="item_name"
+          [suggestions]="filtered_items" field="name" (completeMethod)="searchItems($event)" [minLength]="1" [dropdown]="true" [size]="43">
+        </p-autoComplete>
+      </div>
+      <div class="form-group">
+        <label for="hsn_cd">HSN CD</label>
+        <input type="text" #hsn="ngModel" name="hsn_cd" id="hsn_cd" [(ngModel)]="new_item.hsn_cd" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="pcs">Pcs.</label>
+        <input type="number" #pcs="ngModel" name="pcs" id="pcs" [(ngModel)]="new_item.pcs" class="form-control"
+          required>
+        <div *ngIf="pcs.invalid && (pcs.dirty || pcs.touched)" class="alert alert-danger">
+          <div *ngIf="pcs.errors.required">
+            Pcs. is required.
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="cut">Cut</label>
+        <input type="text" #cut="ngModel" name="cut" id="cut" [(ngModel)]="new_item.cut" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="meters">Meters</label>
+        <input type="number" #meters="ngModel" name="meters" id="meters" [(ngModel)]="new_item.meters"
+          class="form-control" required>
+        <div *ngIf="meters.invalid && (meters.dirty || meters.touched)" class="alert alert-danger">
+          <div *ngIf="meters.errors.required">
+            Meters is required.
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="rate">Rate</label>
+        <input type="number" #rate="ngModel" name="rate" id="rate" [(ngModel)]="new_item.rate" class="form-control"
+          required>
+        <div *ngIf="rate.invalid && (rate.dirty || rate.touched)" class="alert alert-danger">
+          <div *ngIf="rate.errors.required">
+            Rate is required.
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="uqc">UQC</label>
+        <input type="text" #uqc="ngModel" name="uqc" id="uqc" [(ngModel)]="new_item.uqc" class="form-control" required>
+        <div *ngIf="uqc.invalid && (uqc.dirty || uqc.touched)" class="alert alert-danger">
+          <div *ngIf="uqc.errors.required">
+            UQC is required.
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount Rs.</label>
+        <input type="number" name="amount" id="amount" [value]="new_item.meters * new_item.rate" class="form-control"
+          readonly>
+      </div>
+    </form>
+    <form #newElectronicItemForm="ngForm" *ngIf="selected_bill_type=='bill_electronic'">
+        <div class="form-group">
+          <label for="product_name">Product Name</label><br />
+          <p-autoComplete [(ngModel)]="selected_item" name="product_name" id="product_name"
+            [suggestions]="filtered_items" field="name" (completeMethod)="searchItems($event)" [minLength]="1" [dropdown]="true" [size]="43">
+          </p-autoComplete>
+        </div>
+        <div class="form-group">
+          <label for="rate">Rate</label>
+          <input type="number" #rate="ngModel" name="rate" id="rate" [(ngModel)]="new_item.rate" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="warranty">Warranty Details</label>
+          <input type="text" #warranty="ngModel" name="warranty" id="warranty" [(ngModel)]="new_item.warranty_details" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="model_no">Model Number</label>
+          <input type="text" #model_no="ngModel" name="model_no" id="model_no" [(ngModel)]="new_item.model_no" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="amount">Amount Rs.</label>
+          <input type="number" name="amount" id="amount" [value]="new_item.quantity * new_item.rate" class="form-control"
+            readonly>
+        </div>
+    </form>
+    <form #newAutomobileItemForm="ngForm" *ngIf="selected_bill_type=='bill_automobile'">
+      <div class="form-group">
+        <label for="brand_name">Brand Name</label><br />
+        <p-autoComplete [(ngModel)]="selected_brand" name="brand_name" id="brand_name"
+          [suggestions]="filtered_items" field="name" (completeMethod)="searchItems($event)" [minLength]="1" [dropdown]="true" [size]="43">
+        </p-autoComplete>
+      </div>
+      <div class="form-group">
+        <label for="model_name">Model Name</label><br />
+        <p-autoComplete [(ngModel)]="selected_item" name="model_name" id="model_name"
+          [suggestions]="filtered_models" field="name" (completeMethod)="searchModel($event)" [minLength]="1" [dropdown]="true" [size]="43">
+        </p-autoComplete>
+      </div>
+      <div class="form-group">
+        <label for="rate">Rate</label>
+        <input type="number" #rate="ngModel" name="rate" id="rate" [(ngModel)]="new_item.rate" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="warranty">Warranty Details</label>
+        <input type="text" #warranty="ngModel" name="warranty" id="warranty" [(ngModel)]="new_item.warranty_details" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="model_no">Model Number</label>
+        <input type="text" #model_no="ngModel" name="model_no" id="model_no" [(ngModel)]="new_item.model_no" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount Rs.</label>
+        <input type="number" name="amount" id="amount" [value]="new_item.quantity * new_item.rate" class="form-control"
+          readonly>
+      </div>
+    </form>
+  </div>
+  <p-footer>
+    <p-button *ngIf="add_item" label="Save" (click)="saveItem()" styleClass="ui-button-raised ui-button-success">
+    </p-button>
+    <p-button *ngIf="edit_item" label="Update" (click)="updateItem(items.indexOf(new_item))"></p-button>
+    <p-button label="Cancel" (click)="add_item = false; edit_item=false;"></p-button>
+  </p-footer>
+</p-dialog>
+
+
+<!-- -- Dialog for Deposite -- -->
+<p-dialog [(visible)]="add_deposite" modal="true" closeOnEscape="true" [style]="{width: '35em'}">
+  <p-header>
+    Deposite
+  </p-header>
+  <div>
+    <form #depositeForm="ngForm">
+      <div class="form-group">
+        <label for="name">Person Name</label>
+        <input type="text" #name="ngModel" name="name" id="name" [(ngModel)]="deposite.name" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="amount">Deposite Amount</label>
+        <input type="number" #amount="ngModel" name="amount" id="amount" [(ngModel)]="deposite.amount" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="bill_amount">Bill Amount</label>
+        <input type="number" #bill_amount="ngModel" name="bill_amount" id="bill_amount" [(ngModel)]="new_bill.bill_amount" class="form-control" readonly>
+      </div>
+      <div class="form-group">
+        <label for="deposite_date">Deposite Date</label> &nbsp; &nbsp;
+        <p-calendar disabled name="deposite_date" id="deposite_date" [(ngModel)]="deposite.date" dateFormat="dd.mm.yy" readonly></p-calendar>
+      </div>
+    </form>
+  </div>
+  <p-footer>
+    <p-button label="Save" (click)="saveDeposite()" styleClass="ui-button-raised ui-button-success"></p-button>
+    <p-button label="Cancel" (click)="add_deposite = false;"></p-button>
+  </p-footer>
+</p-dialog>
+
+<!-- -- Dialog for GST -- -->
+<p-dialog [(visible)]="view_gst" modal="true" closeOnEscape="true" [style]="{width: '35em'}">
+  <p-header>
+    GST
+  </p-header>
+  <div>
+    <form #gstForm="ngForm">
+      <div class="form-group">
+        <label for="cgst">CGST</label>
+        <input type="number" #cgst="ngModel" name="cgst" id="cgst" [(ngModel)]="new_bill.cgst" class="form-control">
+      </div>
+      <div class="form-group">
+        <label for="sgst">SGST</label>
+        <input type="number" #sgst="ngModel" name="sgst" id="sgst" [(ngModel)]="new_bill.sgst" class="form-control">
+      </div>
+    </form>
+  </div>
+  <p-footer>
+    <p-button label="Save" (click)="updateGST();" styleClass="ui-button-raised ui-button-success"></p-button>
+    <p-button label="Cancel" (click)="view_gst = false;"></p-button>
+  </p-footer>
+</p-dialog>
+
+
+<!-- --- Message for notification --- -->
+<p-toast></p-toast>

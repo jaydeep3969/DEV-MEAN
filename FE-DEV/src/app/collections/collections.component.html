@@ -1,0 +1,138 @@
+<div>
+  <br />
+
+  Due Date : &nbsp;
+  <p-calendar appendTo="body" [(ngModel)]="dueDateFilters" selectionMode="range" [readonlyInput]="false"
+    dateFormat="dd/mm/yy" showButtonBar="true" [monthNavigator]="true" [yearNavigator]="true" yearRange="2000:3000" 
+    (onSelect)="billTable.filter(dueDateFilters,'due_date', 'between')" (onClearClick)="billTable.reset()">
+  </p-calendar>
+
+  <br/><br/>
+
+  <p-table #billTable [columns]="cols_bill" [value]="bills" [paginator]="bills?.length > 0"
+    [rows]="10" [rowsPerPageOptions]="[5,10,20,30]" dataKey="invoice_date">
+    <ng-template pTemplate="colgroup" let-columns>
+      <colgroup>
+        <col [style.width]="'10%'">
+        <col [style.width]="'27%'">
+        <col [style.width]="'10%'">
+        <col *ngFor="let col of columns" [style.width]="col.width">
+        <col [style.width]="'17%'">
+      </colgroup>
+    </ng-template>
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th rowspan="2">
+          Due Date
+        </th>
+        <th rowspan="2">
+          Receiver Name
+        </th>
+        <th rowspan="2">
+          Contact
+        </th>
+        <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+          {{col.header}}
+          <p-sortIcon [field]="col.field" ariaLabel="Activate to sort"
+            ariaLabelDesc="Activate to sort in descending order" ariaLabelAsc="Activate to sort in ascending order">
+          </p-sortIcon>
+        </th>
+        <th rowspan="2">
+          Action
+        </th>
+      </tr>
+      <tr>
+        <th *ngFor="let col of columns" [ngSwitch]="true" class="ui-fluid">
+          <!-- -- invoice date filter -- -->
+          <div *ngSwitchCase="col.field == 'invoice_date'">
+            <p-calendar appendTo="body" [(ngModel)]="dateFilters" selectionMode="range" [readonlyInput]="false"
+              dateFormat="dd/mm/yy" showButtonBar="true" [monthNavigator]="true" [yearNavigator]="true"
+              yearRange="2000:3000" (onSelect)="billTable.filter(dateFilters, col.field, 'between')"
+              (onClearClick)="billTable.reset()">
+            </p-calendar>
+          </div>
+          <div *ngSwitchDefault>
+            <input pInputText type="text"
+              (input)="billTable.filter($event.target.value, col.field, 'contains')"
+              [value]="billTable.filters[col.field]?.value" class="input-res">
+          </div>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-expanded="expanded_deposite" let-bill let-columns="columns">
+      <tr>
+        <td>
+          {{bill['due_date'] | date:'dd/MM/yyyy'}}
+        </td>
+        <td>
+          {{bill.receiver.name}}
+        </td>
+        <td>
+          {{bill.receiver.contact}}
+        </td>
+        <td *ngFor="let col of columns;" [ngSwitch]="true">
+          <div *ngSwitchCase="col.field == 'invoice_date' || col.field == 'due_date'">
+            {{bill[col.field] | date:'dd/MM/yyyy'}}
+          </div>
+          <div *ngSwitchCase="col.field == 'bill_amount' || col.field == 'due_amount'">
+            {{bill[col.field] | number : '1.2-2'}}
+          </div>
+          <div *ngSwitchDefault>
+            {{bill[col.field]}}
+          </div>
+        </td>
+        <td>
+          <p-button label="Change" (click)="changeDueDate(bill)" icon="pi pi-pencil" iconPos="left"
+            styleClass="ui-button-raised"></p-button>
+          &nbsp;
+          <p-button label="View" icon="pi pi-eye" (click)="viewBill(bill['_id'])" iconPos="left"
+            styleClass="ui-button-raised ui-button-warning"></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- -- Dialog to change due date -- -->
+
+<p-dialog [(visible)]="change_due_date" modal="true" closeOnEscape="true" [style]="{width: '35em'}">
+  <p-header>
+    Change Due Date
+  </p-header>
+  <div>
+    <form #dueDateChangeForm="ngForm">
+      <div class="form-group">
+        <label for="invoice_no">Invoice No</label>
+        <input type="text"  name="invoice_no" id="invoice_no" [(ngModel)]="selected_bill.invoice_no_cloth"
+          class="form-control" readonly>
+      </div>
+      <div class="form-group">
+        <label for="bill_amount">Bill Amount</label>
+        <input type="text" name="bill_amount" id="bill_amount" [(ngModel)]="selected_bill.bill_amount"
+          class="form-control" readonly>
+      </div>
+      <div class="form-group" *ngIf="selected_bill.receiver">
+        <label for="receiver">Receiver Name</label>
+        <input type="text"  name="receiver" id="receiver" [(ngModel)]="selected_bill.receiver.name"
+          class="form-control" readonly>
+      </div>
+      <div class="form-group">
+        <label for="iDate">Invoice Date</label> &nbsp; &nbsp;
+        <p-calendar disabled name="iDate" id="iDate" [(ngModel)]="selected_bill.invoice_date"
+          dateFormat="dd.mm.yy" readonly></p-calendar>
+      </div>
+      <div class="form-group">
+        <label for="dDate">Due Date</label> &nbsp; &nbsp;
+        <p-calendar appendTo="body" name="dDate" id="dDate" [(ngModel)]="selected_bill.due_date"
+          [monthNavigator]="true" [yearNavigator]="true" yearRange="2000:3000"  dateFormat="dd.mm.yy"></p-calendar>
+      </div>
+    </form>
+  </div>
+  <p-footer>
+    <p-button label="Update" (click)="updateDueDate()" styleClass="ui-button-raised ui-button-success"></p-button>
+    <p-button label="Cancel" (click)="change_due_date = false;"></p-button>
+  </p-footer>
+</p-dialog> 
+
+<!-- --- Message for notification --- -->
+<p-toast></p-toast>

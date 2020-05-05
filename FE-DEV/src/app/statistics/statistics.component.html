@@ -1,0 +1,90 @@
+<div>
+  <br />
+
+
+  <!-- --- Radio Buttons For Selecting Item Categories --- -->
+  <div class="ui-g-4">
+    <p-radioButton name="item_category" label="Clothes" value="clothes" [(ngModel)]="selected_item_type"
+      (onClick)="get_data();"></p-radioButton>
+    &nbsp;
+    <p-radioButton name="item_category" label="Electronics" value="electronics" [(ngModel)]="selected_item_type"
+      (onClick)="get_data();"></p-radioButton>
+    &nbsp;
+    <p-radioButton name="item_category" label="Automobile" value="automobiles" [(ngModel)]="selected_item_type"
+      (onClick)="get_data();"></p-radioButton>
+    &nbsp;
+    <p-radioButton name="item_category" label="All" value="overall" [(ngModel)]="selected_item_type"
+      (onClick)="overall_data();"></p-radioButton>
+  </div>
+
+  <!-- --- Radio Buttons For Selecting Time Categories --- -->
+  <div class="ui-g-8">
+    <p-radioButton name="time_category" label="Years" value="years" [(ngModel)]="selected_time_type"
+      (onClick)="selected_item_type == 'overall' ? overall_data() : get_data();"></p-radioButton>
+    &nbsp;
+    <p-radioButton name="time_category" label="Months" value="months" [(ngModel)]="selected_time_type"
+      (onClick)="selected_item_type == 'overall' ? overall_data() : get_data();"></p-radioButton>
+    &nbsp;
+    <p-radioButton name="time_category" label="Days" value="days" [(ngModel)]="selected_time_type"
+      (onClick)="selected_item_type == 'overall' ? overall_data() : get_data();"></p-radioButton>
+  
+    &nbsp; &nbsp;
+
+    <span *ngIf="selected_time_type == 'years'">
+      Start : &nbsp; 
+      <p-dropdown id="dd_start_year" [options]="start_years" [(ngModel)]="selected_start_year" [filter]="true" (onChange)="set_endYears()" ></p-dropdown>
+      End : &nbsp;
+      <p-dropdown id="dd_end_year" [options]="end_years" [(ngModel)]="selected_end_year" [filter]="true" ></p-dropdown>
+    </span>
+
+    <span *ngIf="selected_time_type == 'months'">
+      Year : &nbsp;
+      <p-dropdown id="dd_m_year" [options]="start_years" [(ngModel)]="selected_start_year" [filter]="true" ></p-dropdown>
+    </span>
+
+    <span *ngIf="selected_time_type == 'days'">
+      Year : &nbsp;
+      <p-dropdown id="dd_d_year" [options]="start_years" [(ngModel)]="selected_start_year" [filter]="true" ></p-dropdown>
+      Month : &nbsp;
+      <p-dropdown id="dd_month" [options]="dd_months" [(ngModel)]="selected_month" [filter]="true" ></p-dropdown>
+    </span>
+
+    &nbsp;
+    <button type="text" (click)="selected_item_type == 'overall' ? overall_data() : get_data();" pButton icon="pi pi-search" label="Find"
+      styleClass="ui-button-raised ui-button-success"></button>
+  </div>
+
+  <br />
+  <br />
+
+  <!-- -- Showing Total -- -->
+  <div class="card ui-g-3" style="background-color:#42A5F5;color: black;">
+    <br/>
+    Total Purchase <br/>
+    {{total_purchase | number : '1.2-2'}}
+    <br/><br/>
+  </div>
+  <div class="card ui-g-3" style="background-color: #800080;color: #ffffff;">
+    <br/>
+    Total Sell <br/>
+    {{total_sell | number : '1.2-2'}}
+    <br/><br/>
+  </div>
+  <div class="card ui-g-3" style="background-color: #9CCC65; color: black;">
+    <br/>
+    Total Profit <br/>
+    {{total_profit | number : '1.2-2'}}
+    <br/><br/>
+  </div>
+  <div class="card ui-g-3" style="background-color: #FF0000;color: #ffffff;">
+    <br/>
+    Total Expense <br/>
+    {{total_expense | number : '1.2-2'}}
+    <br/><br/>
+  </div>
+
+  <br/>
+  <br/>
+  <p-chart type="bar" [data]="data"></p-chart>
+  
+</div>

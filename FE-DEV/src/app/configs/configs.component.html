@@ -1,0 +1,80 @@
+<div *ngIf="loaded">
+  <br/>
+  <!-- -- Bank Details -- -->
+  <p-card class="ui-g-6" header="Bank Details:">
+    <br/>
+    <form #bankDetailsForm="ngForm">
+      <div class="form-group">
+        <label for="bank_name">Bank Name</label>
+        <input type="text" [(ngModel)]="bank_details.value.name" name="bank_name" id="bank_name"
+          class="form-control" pInputText required>
+      </div>
+      <div class="form-group">
+        <label for="ac_no">A/C No.</label>
+        <input type="number" [(ngModel)]="bank_details.value.ac_no" name="ac_no" id="ac_no"
+          class="form-control" pInputText required>
+      </div>
+      <div class="form-group">
+        <label for="ifsc">IFSC</label>
+        <input type="text" [(ngModel)]="bank_details.value.ifsc" name="ifsc" id="ifsc"
+          class="form-control" pInputText required>
+      </div>
+      <div class="form-group">
+        <label for="branch">Branch Name</label>
+        <input type="text" [(ngModel)]="bank_details.value.branch" name="branch" id="branch"
+          class="form-control" pInputText required>
+      </div>
+    </form>
+    <div style="text-align: end">
+      <button type="text" (click)="updateBankDetails()" pButton label="Update"
+        styleClass="ui-button-raised ui-button-success"></button>
+    </div>
+  </p-card>
+  <!-- -- GST Details -- -->
+  <p-card class="ui-g-6" header="GST Details :">
+    <br/>
+     <!-- --- Radio Buttons For Selecting Item Categories --- -->
+    <div>
+      <p-radioButton name="item_category" label="Clothes" value="clothes" [(ngModel)]="selected_item_type"
+        (onClick)="selected_gst = gst_cloth;"></p-radioButton>
+      &nbsp;
+      <p-radioButton name="item_category" label="Electronics" value="electronics" [(ngModel)]="selected_item_type"
+        (onClick)="selected_gst = gst_ele;"></p-radioButton>
+      &nbsp;
+      <p-radioButton name="item_category" label="Automobile" value="automobiles" [(ngModel)]="selected_item_type"
+        (onClick)="selected_gst = gst_auto;"></p-radioButton>
+    </div>
+    <br/>
+    <form #bankDetailsForm="ngForm">
+      <div class="form-group">
+        <label for="cgst">CGST</label>
+        <input type="number" [(ngModel)]="selected_gst.value.cgst" name="cgst" id="cgst"
+          class="form-control" pInputText required>
+      </div>
+      <div class="form-group">
+        <label for="sgst">SGST</label>
+        <input type="number" [(ngModel)]="selected_gst.value.sgst" name="sgst" id="sgst"
+          class="form-control" pInputText required>
+      </div>
+    </form>
+    <div style="text-align: end">
+      <button type="text" (click)="updateGSTDetails()" pButton label="Update"
+        styleClass="ui-button-raised ui-button-success"></button>
+    </div>
+  </p-card>
+</div>
+
+
+<!-- --- Confirmation Dialog for Deletion --- -->
+<p-confirmDialog #cd header="Confirmation" icon="pi pi-exclamation-triangle">
+  <p-footer>
+    <button type="button" pButton icon="pi pi-times" label="No" (click)="cd.reject()"
+      styleClass="ui-button-raised ui-button-danger"></button>
+    <button type="button" pButton icon="pi pi-check" label="Yes" (click)="cd.accept()"
+      styleClass="ui-button-raised"></button>
+  </p-footer>
+</p-confirmDialog>
+
+
+<!-- --- Message for notification --- -->
+<p-toast></p-toast>

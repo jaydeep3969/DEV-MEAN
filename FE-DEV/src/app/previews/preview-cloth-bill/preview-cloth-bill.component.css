@@ -1,0 +1,19 @@
+table th{
+    border-style : solid;
+    border-width: thin;
+}
+
+table tbody td{
+    border-right: thin solid;
+    border-left : thin solid;
+    padding-top : 10px;
+    padding-left : 5px; 
+    padding-right: 5px;
+}
+
+table tfoot td{
+    border: thin solid;
+    padding-top : 10px;
+    padding-left : 5px; 
+    padding-right: 5px;
+}

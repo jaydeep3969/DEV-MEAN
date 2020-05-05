@@ -1,0 +1,242 @@
+<div *ngIf="bill_loaded" style="margin-left: 15px; margin-right: 15px; margin-top: 5px">
+  <h3 style="text-align: center">
+    TAX INVOICE
+  </h3>
+
+  <!-- -- header of bill -- -->
+  <div class="row" style="border: solid; border-width: thin">
+    <div class="column ui-g-4" style="border-right : solid; border-width: thin;">
+      <b>Details of Receiver/ Billed To :</b>
+      <br /><br />
+      <b>{{receiver.name}}</b>
+      <br /><br />
+      {{receiver.address.streetline}}
+      <br />
+      {{receiver.address.area}},{{receiver.address.city}},{{receiver.address.state}}
+      <br /><br />
+      <b>Contact : </b>{{receiver.contact}}
+      <br /><br />
+      <b>GSTIN : {{receiver.gst}}</b>
+    </div>
+    <div class="column ui-g-4" style="border-right : solid; border-width: thin;">
+      <b>Details of Consignee/ Shipped To :</b>
+      <div *ngIf="bill.consignee_name">
+        <br />
+        <b>{{bill.consignee_name}}</b>
+        <br /><br />
+        {{bill.shipped_to.streetline}}
+        <br />
+        {{bill.shipped_to.area}}, {{bill.shipped_to.city}}, {{bill.shipped_to.state}}.
+        <br /><br />
+        <b>Contact : </b>{{bill.consignee_contact}}
+      </div>
+    </div>
+    <div class="column ui-g-4">
+      <b>Invoice Details :</b>
+      <br /><br />
+      <table>
+        <thead>
+          <tr>
+            <td><b>INVOICE NO</b></td>
+            <td> : </td>
+            <td>&nbsp;{{bill.invoice_no_cloth}}</td>
+          </tr>
+          <tr>
+            <td><b>DATE</b></td>
+            <td> : </td>
+            <td>&nbsp;{{bill.invoice_date | date:'dd/MM/yyyy'}}</td>
+          </tr>
+          <tr>
+            <td><b>CHALLAN NO</b></td>
+            <td> : </td>
+            <td>&nbsp;{{bill.challan_no}}</td>
+          </tr>
+          <tr>
+            <td><b>SUPPLY DT</b></td>
+            <td> : </td>
+            <td>&nbsp;{{bill.supply_date | date:'dd/MM/yyyy'}}</td>
+          </tr>
+        </thead>
+      </table>
+      <br />
+      <br />
+      <br />
+    </div>
+  </div>
+
+  <!-- -- Items' Table -- -->
+  <div class="row ui-g-12">
+    <table style="width: 100%;">
+      <colgroup>
+        <col [style.width]="'4%'">
+        <col *ngFor="let col of cols" [style.width]="col.width">
+      </colgroup>
+      <!-- -- header -- -->
+      <thead>
+        <tr>
+          <th style="text-align: center">
+            No.
+          </th>
+          <th *ngFor="let col of cols" style="text-align: center">
+            {{col.header}}
+          </th>
+        </tr>
+      </thead>
+
+      <!-- -- body -- -->
+      <tbody>
+        <tr *ngFor="let item of items">
+          <td style="text-align: center">
+            {{items.indexOf(item)+1}}
+            <br /><br/>
+          </td>
+          <td *ngFor="let col of cols;" [ngSwitch]="true">
+            <div *ngSwitchCase="col.field == 'amount'" style="text-align: end">
+              {{item[col.field] | number : '1.2-2'}}
+            </div>
+            <div *ngSwitchCase="col.field == 'rate'">
+              {{item[col.field] | number : '1.2-2'}}
+            </div>
+            <div *ngSwitchDefault>
+              {{item[col.field]}}
+            </div>
+            <br />
+          </td>
+        </tr>
+        <tr *ngFor="let i of blanks">
+          <td><br/><br/></td>
+          <td *ngFor="let col of cols;"></td>
+        </tr>
+        <tr>
+          <td style="border-bottom: thin solid;"></td>
+          <td *ngFor="let col of cols;" style="border-bottom: thin solid;"></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td *ngFor="let col of cols;"></td>
+        </tr>
+      </tbody>
+
+      <!-- -- footer -- -->
+      <tfoot style="border : thin solid;">
+        <tr>
+          <td colspan="3"></td>
+          <td>{{total_pcs}}</td>
+          <td></td>
+          <td>{{total_meters}}</td>
+          <td colspan="2" ></td>
+          <td style="text-align: end">{{bill.total_amount | number : '1.2-2'}}</td>
+        </tr>
+        <tr>
+          <td rowspan="2" colspan="5" class="table-col ">
+            <b>Payment Due Date : &nbsp; {{bill.due_date | date:'dd/MM/yyyy'}}</b>
+          </td>
+          <td><b>CGST</b></td>
+          <td>{{bill.cgst | number : '1.2-2'}}%</td>
+          <td colspan="2" style="text-align: end">
+            {{bill.total_amount * bill.cgst / 100 | number : '1.2-2'}}
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <b>SGST</b>
+          </td>
+          <td>
+            {{bill.sgst | number : '1.2-2'}}%
+          </td>
+          <td colspan="2" style="text-align: end">
+            {{bill.total_amount * bill.sgst / 100 | number : '1.2-2'}}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="7" style="text-align: end">
+            <b>Bill Amount</b>
+          </td>
+          <td colspan="2" style="border: solid; text-align: end;">
+            <b>{{bill.bill_amount | number : '1.2-2'}}</b>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="9">
+            <b>In Words : </b>{{bill.in_words}} RUPEES ONLY
+          </td>
+        </tr>
+      </tfoot>
+
+    </table>
+  </div>
+
+  <!-- -- bill footer -- -->
+  <div class="row ui-g-12">
+    <!-- -- T&C -- -->
+    <div class="column ui-g-8">
+      <b>Terms And Conditions : </b>
+      <br/><br/>
+      1. The goods are dispatches on your account and at your risks and responsibility.
+      <br/>
+      <b>2. After Due Date interest will be charged @24.00% per annum. GST is applicable on interest.</b>
+      <br/>
+      3. Subject to Surat Jurisdiction. (5) E. & O.E. (7) No Dyeing Guarantee
+    </div>
+    <!-- -- Bank Details -- -->
+    <div class="column ui-g-8">
+      <b>Bank Details : </b>
+      <br/>
+      <table>
+        <thead>
+          <tr>
+            <td>
+              <b>Bank Name</b>
+            </td>
+            <td>
+              :
+            </td>
+            <td *ngIf="bank_details">
+              {{bank_details.value.name}}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>A/c No</b>
+            </td>
+            <td>
+              :
+            </td>
+            <td *ngIf="bank_details"> 
+                {{bank_details.value.ac_no}}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>IFSC Code</b>
+            </td>
+            <td>
+              :
+            </td>
+            <td *ngIf="bank_details">
+              {{bank_details.value.ifsc}}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <b>Branch</b>
+            </td>
+            <td>
+              :
+            </td>
+            <td *ngIf="bank_details">
+              {{bank_details.value.branch}}
+            </td>
+          </tr>
+        </thead>
+        </table>
+    </div>
+    <!-- -- Sign -- -->
+    <div class="column ui-g-4" aria-rowspan="2" style="text-align: end">
+      <p style="font-size: large">For Dev Enterprise</p>
+      <br/><br/>
+      ------------------------<br/>
+      Authorised Signatory
+    </div>
+  </div>
+</div>

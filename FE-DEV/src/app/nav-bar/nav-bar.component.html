@@ -1,0 +1,38 @@
+<div style="background-color: black; padding-top: 5px; padding-left: 10px">
+  <p-tabMenu [model]="items" [activeItem]="items[0]" [style]="{'height' : '10%'}"></p-tabMenu>
+</div>
+
+<!-- <app-dashboard *ngIf="activeItem == 'dashboard'"></app-dashboard> -->
+<app-items *ngIf="activeItem == 'items'"></app-items>
+<app-customers *ngIf="activeItem == 'customers'"></app-customers>
+<app-bills *ngIf="activeItem == 'bills'"></app-bills>
+<app-new-bill *ngIf="activeItem == 'new_bill'"></app-new-bill>
+
+<!-- -- Dashboard Nav Bar -- -->
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" (click)="closeNav()">&times;</a>
+  <br/><br/>
+  &nbsp;
+  <b style="font-size: 20px; color: white; ">Hello {{user.name}} !</b>
+  <br /><br />
+  <a href="javascript:void(0)" (click)="clickNav('collection')"><i class="pi pi-briefcase"></i> Collection </a>
+  <a href="javascript:void(0)" (click)="clickNav('expense')"><i class="pi pi-dollar"></i> Expense </a>
+  <a href="javascript:void(0)" (click)="clickNav('config')"><i class="pi pi-cog"></i> Configuration </a>
+  <a href="javascript:void(0)" (click)="clickNav('stats')"><i class="pi pi-chart-bar"></i> Statistic </a>
+  <a href="javascript:void(0)" (click)="logout()"><i class="pi pi-power-off"></i> Logout </a>
+</div>
+
+<!-- -- Dashboard Content -- -->
+<div id="main">
+  <div *ngIf="activeItem == 'dashboard'"  style="margin-left:15px; margin-right: 15px; margin-top: 5px">
+    <h3>{{header}}</h3>
+  
+    <app-expenses *ngIf="activeMenu == 'expense'"></app-expenses>
+    <app-configs *ngIf="activeMenu == 'config'"></app-configs>
+    <app-collections *ngIf="activeMenu == 'collection'"></app-collections>
+    <app-statistics *ngIf="activeMenu == 'stats'"></app-statistics>
+  </div>
+</div>
+
+<!-- --- Message for notification --- -->
+<p-toast></p-toast>

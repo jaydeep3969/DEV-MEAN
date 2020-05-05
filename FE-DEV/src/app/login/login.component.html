@@ -1,0 +1,42 @@
+<body style=" background-image: url('../../assets/images/bg-02.jpg'); background-size: cover">
+  
+  <!-- -- LogIn -- -->
+  <div *ngIf="!reset_pswd" class="form-area" style="background: rgba(0, 0, 0, 0.4)">
+    <h3 style="text-align: center">Login</h3>
+    <form>
+      <p>Username</p>
+      <input type="text" name="username" id="username"  [(ngModel)]="user.username" placeholder="enter your username">
+      <p>Password</p>
+      <input type="password" name="password" id="password" [(ngModel)]="user.password" placeholder="enter your password">
+      <br/><br/>
+      <button type="text" [disabled]="user.username == '' || user.username == null || user.password == '' || user.password == null" (click)="signIn()" pButton label="Sign In"
+      styleClass="ui-button-raised ui-button-success"></button>
+      <br/><br/>
+      <a href="javascript:void(0)" (click)="reset_pswd = true; new_password = '';">Reset Password ?</a>
+    </form>
+  </div>
+
+  <!-- -- Reset Password -- -->
+  <div *ngIf="reset_pswd" class="form-area" style="background: rgba(0, 0, 0, 0.4); width: fit-content; height : fit-content;">
+    <h3 style="text-align: center">Reset Password</h3>
+    <form>
+      <p>Username</p>
+      <input type="text" name="username" id="username"  [(ngModel)]="user.username" placeholder="enter your username">
+      <p>Old Password</p>
+      <input type="password" name="o_password" id="o_password" [(ngModel)]="user.password" placeholder="enter your old password">
+      <p>New Password</p>
+      <input type="password" name="n_password" id="n_password" [(ngModel)]="new_password" placeholder="enter your new password">
+      <p>Reenter New Password</p>
+      <input type="password" name="re_password" id="re_password" [(ngModel)]="renew_password" placeholder="reenter your new password">
+      <br/><br/>
+      <button type="text" [disabled]="user.username == '' || user.username == null || user.password == '' || user.password == null || new_password == null || new_password == '' || new_password != renew_password || user.password == new_password" (click)="resetPassword()" pButton label="Reset"
+      styleClass="ui-button-raised ui-button-success"></button>
+      <br/><br/>
+      <a href="javascript:void(0)" (click)="reset_pswd = false;">Login ?</a>
+    </form>
+  </div>
+
+</body>
+
+<!-- --- Message for notification --- -->
+<p-toast></p-toast>
