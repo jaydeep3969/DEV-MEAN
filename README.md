@@ -20,7 +20,7 @@ Dev Enterprise is managing three major businesses all over Surat city:
 * Key Functionalities :
   - Managing all 3 types of Inventories
   - Managing Customers
-  - Invoice Generation
-  - Dashbord to monitor Sells, Purchases, Profit, Revenue
+  - All 3 types of Invoice Generation
+  - Dashbord to monitor Sells, Purchases, Profit, Revenue by different criterias
   - Monitoring and Managing Expenses
   - Managing EMIs of Customers
